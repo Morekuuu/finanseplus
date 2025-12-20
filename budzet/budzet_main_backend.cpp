@@ -4,6 +4,7 @@
 #include <iomanip>
 #include <fstream>
 #include "budzet.h"
+#include "baza_danych.h"
 
 using namespace std;
 
@@ -14,68 +15,6 @@ string wczytajLinie() {
     string tekst;
     getline(cin, tekst);
     return tekst;
-}
-void zapiszBaze(const list<Budzet>& lista) {
-    ofstream plik(NAZWA_PLIKU); // Otwieramy plik do zapisu
-
-    if (plik.is_open()) {
-        // Najpierw zapisujemy ile mamy budżetów
-        plik << lista.size() << endl;
-
-        for (const auto& budzet : lista) {
-            // Zapisujemy nazwę budżetu
-            plik << budzet.nazwa << endl;
-            // Zapisujemy ile kont ma ten budżet
-            plik << budzet.konta.size() << endl;
-
-            for (const auto& konto : budzet.konta) {
-                // Zapisujemy dane konta: lokalizacja i kwota
-                plik << konto.lokalizacja << endl;
-                plik << konto.kwota << endl;
-            }
-        }
-        plik.close();
-        cout << "[INFO] Dane zostaly zapisane do pliku " << NAZWA_PLIKU << endl;
-    } else {
-        cout << "[BLAD] Nie udalo sie otworzyc pliku do zapisu!" << endl;
-    }
-}
-
-void wczytajBaze(list<Budzet>& lista) {
-    ifstream plik(NAZWA_PLIKU); // Otwieramy plik do odczytu
-
-    if (plik.is_open()) {
-        int iloscBudzetow;
-        plik >> iloscBudzetow;
-        plik.ignore(); // Ignorujemy znak nowej linii po wczytaniu liczby
-
-        for (int i = 0; i < iloscBudzetow; i++) {
-            string nazwaBudzetu;
-            getline(plik, nazwaBudzetu); // Wczytujemy nazwę budżetu (może mieć spacje)
-
-            Budzet nowyBudzet(nazwaBudzetu);
-
-            int iloscKont;
-            plik >> iloscKont;
-            plik.ignore(); // Znów ignorujemy nową linię po liczbie
-
-            for (int j = 0; j < iloscKont; j++) {
-                string lokalizacja;
-                double kwota;
-
-                getline(plik, lokalizacja);
-                plik >> kwota;
-                plik.ignore(); // Ignorujemy nową linię po kwocie
-
-                nowyBudzet.dodajSrodki(kwota, lokalizacja);
-            }
-            lista.push_back(nowyBudzet);
-        }
-        plik.close();
-        cout << "[INFO] Wczytano dane z pliku (" << lista.size() << " budzetow)." << endl;
-    } else {
-        cout << "[INFO] Brak pliku zapisu lub pierwszy start programu." << endl;
-    }
 }
 
 int main() {
