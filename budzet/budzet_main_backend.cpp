@@ -9,9 +9,7 @@
 
 using namespace std;
 
-const string NAZWA_PLIKU = "budzety.txt";
-
-// Funkcja pomocnicza do pobierania linii tekstu (radzi sobie ze spacjami)
+// Funkcja do pobierania linii tekstu (radzi sobie ze spacjami)
 string wczytajLinie()
 {
     string tekst;
@@ -19,12 +17,88 @@ string wczytajLinie()
     return tekst;
 }
 
+// Funkcja do wyświetlania listy budżetów
 void Budzety(std::list<Budzet>& lista)
 {
     int i = 1;
     for (const auto& b : lista) {
         cout << i << ". " << b.nazwaBudżetu() << endl;
         i++;
+    }
+}
+
+//Funkcja do modyfikowania listy kont
+void modListaKont( std::list<std::string>& lista)
+{
+    int i;
+    cout << "Co chcesz zrobić" << endl;
+    cout << "1. Dodać konto" << endl;
+    cout << "2. Usunąć konto" << endl;
+    cout << "3. Wyświetl konta" << endl;
+    cin >> i;
+    switch (i)
+    {
+        case 1:
+        {
+                cout << "Podaj nazwe nowego konta: ";
+                string nazwa;
+                cin >> nazwa;
+                lista.push_back(nazwa);
+                cout << "Konto " << nazwa << " dodane"<< endl;
+                break;
+        }
+
+        case 2:
+        {
+                if (lista.empty()) {std::cout << "Lista kont jest pusta." << std::endl;}
+                else
+                {
+                    int idx = 1;
+                    std::cout << "Dostepne konta:" << std::endl;
+                    for (const auto& nazwa : lista)
+                    {
+                        std::cout << idx << ". " << nazwa << std::endl;
+                        idx++;
+                    }
+                    int idxDelete;
+                    cout << "Podaj numer do usunięcia: ";
+                    cin >> idxDelete;
+                    idx = 1;
+                    for (const auto& nazwa : lista)
+                    {
+                        if (idx == idxDelete)
+                        {
+                            lista.remove(nazwa);
+                            std::cout << "Usunięto: " << idx << ". " << nazwa << std::endl;
+                        }
+                        else {cout << "Nieprawidłowy numer";}
+                        idx++;
+                    }
+
+
+                }
+                break;
+        }
+        case 3:
+        {
+                if (lista.empty()) {std::cout << "Lista kont jest pusta." << std::endl;}
+                else
+                {
+                    int idx = 1;
+                    std::cout << "Dostepne konta:" << std::endl;
+                    for (const auto& nazwa : lista)
+                    {
+                        std::cout << idx << ". " << nazwa << std::endl;
+                        idx++;
+                    }
+                }
+                break;
+
+        }
+        default:
+        {
+            cout << "Nieprawidłowy numer";
+        }
     }
 }
 
@@ -35,7 +109,10 @@ int main()
     // Główna lista przechowywująca wszystkie budżety
     list<Budzet> listaBudzetow;
 
-    wczytajBaze(listaBudzetow);
+    // Lista do przechowywania dozwolonych nazw kont
+    std::list<std::string> nazwyKont;
+
+    wczytajBaze(listaBudzetow, nazwyKont);
 
 
     int wybor;
@@ -48,6 +125,7 @@ int main()
         cout << "4. Zmiana środków" << endl;
         cout << "5. Usuń środki" << endl;
         cout << "6. Usuń budżet" << endl;
+        cout << "7. Zmień dostępne konta" << endl;
         cout << "0. Wyjście" << endl;
         cout << "Wybierz opcje: ";
         cin >> wybor;
@@ -214,8 +292,14 @@ int main()
                 }
                 break;
             }
+
+        case 7: //zmiana dostępnych kont
+            {
+                modListaKont(nazwyKont);
+                break;
+            }
         case 0:
-            zapiszBaze(listaBudzetow);
+            zapiszBaze(listaBudzetow, nazwyKont);
             cout << "Konczenie programu..." << endl;
 
             break;
