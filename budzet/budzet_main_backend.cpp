@@ -19,6 +19,15 @@ string wczytajLinie()
     return tekst;
 }
 
+void Budzety(std::list<Budzet>& lista)
+{
+    int i = 1;
+    for (const auto& b : lista) {
+        cout << i << ". " << b.nazwaBudżetu() << endl;
+        i++;
+    }
+}
+
 int main()
 {
     SetConsoleOutputCP(CP_UTF8);
@@ -33,10 +42,10 @@ int main()
     do
     {
         cout << "\n--- MENADZER BUDZETOW ---" << endl;
-        cout << "1. Dodaj nowy budżet tematyczny" << endl;
-        cout << "2. Dodaj środki do istniejacego budżetu" << endl;
+        cout << "1. Dodaj nowy budżet" << endl;
+        cout << "2. Dodaj konto do budżetu" << endl;
         cout << "3. Wyswietl wszystkie budżety" << endl;
-        cout << "4. odejmij środki" << endl;
+        cout << "4. Zmiana środków" << endl;
         cout << "5. Usuń środki" << endl;
         cout << "6. Usuń budżet" << endl;
         cout << "0. Wyjście" << endl;
@@ -46,7 +55,7 @@ int main()
 
         switch (wybor)
         {
-        case 1:
+        case 1: // dodanie nowego budżetu
         {
 
             cout << "Podaj nazwe nowego budzetu (np. Wakacje): ";
@@ -55,21 +64,18 @@ int main()
             cout << "Budzet '" << nazwa << "' zostal utworzony." << endl;
             break;
         }
-        case 2:
+        case 2: //dodanie konta
         {
             if (listaBudzetow.empty())
             {
                 cout << "Najpierw utworz jakis budzet!" << endl;
                 break;
-            }
+            } //sprawdzanie zawartości
 
             cout << "Wybierz budzet do edycji:" << endl;
             int i = 1;
-            // Wyświetlamy listę budżetów z numerami
-            for (const auto& b : listaBudzetow) {
-                cout << i << ". " << b.nazwa << endl;
-                i++;
-            }
+
+            Budzety(listaBudzetow); //Wyświetlanie budżetów
 
             int numer;
             cout << "Podaj numer: ";
@@ -90,12 +96,12 @@ int main()
                 cout << "Podaj miejsce przechowywania (np. PKO, Gotowka): ";
                 string miejsce = wczytajLinie();
 
-                it->dodajSrodki(kwota, miejsce);
+                it->dodajKonto(kwota, miejsce);
                 cout << "Dodano srodki." << endl;
             } else {cout << "Nieprawidlowy numer." << endl;}
             break;
         }
-        case 3:
+        case 3: //wyświetl budzety
             {
                 if (listaBudzetow.empty())
                 {
@@ -109,15 +115,70 @@ int main()
                 }
             break;
             }
-        case 4:
+        case 4: //zmiana środków w wybranym koncie i budżecie
             {
-                cout << "4. odejmij środki";
+                if (listaBudzetow.empty())
+                {
+                    cout << "Najpierw utworz jakis budzet!" << endl;
+                    break;
+                }
+
+                cout << "Wybierz budzet do edycji:" << endl;
+                int i = 1;
+                // Wyświetlamy listę budżetów z numerami
+                for (const auto& b : listaBudzetow) {
+                    cout << i << ". " << b.nazwaBudżetu() << endl;
+                    i++;
+                }
+
+                int numer;
+                cout << "Podaj numer: ";
+                cin >> numer;
+                cin.ignore();
+
+                if (numer > 0 && numer <= listaBudzetow.size())
+                {
+                    // Znajdowanie elementu w liście
+                    auto it = listaBudzetow.begin();
+                    advance(it, numer - 1); // Przesuwamy iterator na wybraną pozycję
+
+                    it->zmianaŚrodków();
+                    //cout << "Usunięto środki" << endl;
+                } else {cout << "Nieprawidlowy numer." << endl;}
+
+
                 break;
             }
-        case 5:
+        case 5: //usuń konto
             {
-                cout << "6. Usuń środki";
+                if (listaBudzetow.empty())
+                {
+                    cout << "Najpierw utworz jakis budzet!" << endl;
+                    break;
+                }
 
+                cout << "Wybierz budzet do edycji:" << endl;
+                int i = 1;
+                // Wyświetlamy listę budżetów z numerami
+                for (const auto& b : listaBudzetow) {
+                    cout << i << ". " << b.nazwaBudżetu() << endl;
+                    i++;
+                }
+
+                int numer;
+                cout << "Podaj numer: ";
+                cin >> numer;
+                cin.ignore();
+
+                if (numer > 0 && numer <= listaBudzetow.size())
+                {
+                    // Znajdowanie elementu w liście
+                    auto it = listaBudzetow.begin();
+                    advance(it, numer - 1); // Przesuwamy iterator na wybraną pozycję
+
+                    it->usunKonto();
+                    cout << "Usunięto środki" << endl;
+                } else {cout << "Nieprawidlowy numer." << endl;}
                 break;
             }
         case 6:
@@ -144,14 +205,13 @@ int main()
                 if (numer > 0 && numer <= listaBudzetow.size()) {
                     auto it = listaBudzetow.begin();
                     advance(it, numer - 1);
-                    string Nazwakasowana = it->nazwa;
+                    string Nazwakasowana = it->nazwaBudżetu();
                     listaBudzetow.erase(it);
 
                     cout << "Budzet '" << Nazwakasowana << "' zostal usuniety." << endl;
                 } else {
                     cout << "Nieprawidlowy numer." << endl;
                 }
-                break;
                 break;
             }
         case 0:
