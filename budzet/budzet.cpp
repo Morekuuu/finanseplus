@@ -15,7 +15,6 @@ void Budzet::dodajKonto(double kwota, std::string lokalizacja)
 {
     konta.push_back(Konto(kwota, lokalizacja));
 }
-9
 
 void Budzet::zmianaŚrodków()
 {
