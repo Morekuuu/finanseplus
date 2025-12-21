@@ -5,21 +5,28 @@
 
 const std::string NAZWA_PLIKU = "budzety.txt";
 
-void zapiszBaze(const std::list<Budzet>& lista)
+void zapiszBaze(const std::list<Budzet>& lista, const std::list<std::string>& konta)
 {
     std::ofstream plik(NAZWA_PLIKU);
-    if (plik.is_open()) {
-        // Zapisujemy ilość budżetów
-        plik << lista.size() << std::endl;
+    if (plik.is_open())
+        {
 
-        for (const auto& budzet : lista) {
-            // Zapisujemy nazwę budżetu
+        // Zapisywanie nazw kont
+        plik << konta.size() << std::endl; // Ile jest nazw
+        for (const auto& nazwa : konta)
+        {
+            plik << nazwa << std::endl;    // Sama nazwa
+        }
+
+        // Zapisywanie budżetów
+        plik << lista.size() << std::endl;
+        for (const auto& budzet : lista)
+        {
             plik << budzet.nazwaBudżetu() << std::endl;
-            // Zapisujemy ile kont ma ten budżet
             plik << budzet.ileKont() << std::endl;
 
-            for (const auto& konto : budzet.konta) {
-                // Zapisujemy dane konta: lokalizacja i kwota
+            for (const auto& konto : budzet.konta)
+            {
                 plik << konto.lokalizacja << std::endl;
                 plik << konto.kwota << std::endl;
             }
@@ -31,11 +38,28 @@ void zapiszBaze(const std::list<Budzet>& lista)
     }
 }
 
-void wczytajBaze(std::list<Budzet>& lista)
+void wczytajBaze(std::list<Budzet>& lista, std::list<std::string>& konta)
 {
     std::ifstream plik(NAZWA_PLIKU);
     if (plik.is_open())
     {
+        lista.clear();
+        konta.clear();
+
+        // Wczytanie listy nazw kont
+        int iloscNazw = 0;
+        if (plik >> iloscNazw)
+            {
+            plik.ignore();
+
+            for (int i = 0; i < iloscNazw; i++) {
+                std::string nazwa;
+                getline(plik, nazwa);
+                konta.push_back(nazwa);
+            }
+        }
+
+        // Wczytanie listy budżetów
         int iloscBudzetow;
         plik >> iloscBudzetow;
         plik.ignore();
