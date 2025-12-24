@@ -3,7 +3,8 @@
 #include <list>
 #include <string>
 #include <iomanip>
-#include "struktury.h"
+//#include "struktury.h"
+#include "konto.h"
 
 // Klasa reprezentująca jeden budżet tematyczny (np. "Wakacje")
 class Budzet
@@ -29,8 +30,10 @@ class Budzet
         // Metoda na wyświetlenie nazwy oraz sumy środków budżetu
         void wyswietl_dostepnosc() const;
 
+        // Metoda zwracająca nazwę
         std::string nazwaBudżetu()const;
 
+        // Metoda zwracająca ilosć dopisanych kont do budżetu
         int ileKont() const;
 
         std::list<Konto> konta; // Lista kont wewnątrz tego budżetu
