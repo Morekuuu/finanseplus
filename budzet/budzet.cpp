@@ -13,7 +13,7 @@ Budzet::Budzet(std::string n)
 // Metoda dodająca nową kwotę i miejsce do budżetu
 void Budzet::dodajKonto(double kwota, std::string lokalizacja)
 {
-    konta.push_back(Konto(kwota, lokalizacja));
+    konta.push_back(Konto(lokalizacja, kwota));
 }
 
 void Budzet::zmianaŚrodków()
@@ -45,9 +45,9 @@ void Budzet::zmianaŚrodków()
         std::cout << "Znak '+' dodaje a znak '-' odejmuje" << std::endl;
         std::cout << "Podaj kwotę [PLN]: ";
         std::cin >> zmiana;
-        it->kwota += zmiana;
+        it->saldoZmiana(zmiana);
 
-        std::cout << "Do konta '" << it->lokalizacja << "' zostalo "
+        std::cout << "Do konta '" << it->nazwaZwrot() << "' zostalo "
             << ((zmiana<0) ? "odjęte: " : ("dodane: "))
             << zmiana << " PLN" << std::endl;
     } else {
@@ -75,7 +75,7 @@ void Budzet::usunKonto()
     if (numer > 0 && numer <= konta.size()) {
         auto it = konta.begin();
         std::advance(it, numer - 1);
-        std::string lokalizacjaKasowana = it->lokalizacja;
+        std::string lokalizacjaKasowana = it->nazwaZwrot();
         konta.erase(it);
 
         std::cout << "Konto '" << lokalizacjaKasowana << "' zostalo usunietę." << std::endl;
@@ -90,7 +90,7 @@ double Budzet::sumaCalkowita() const
     double suma = 0;
     for (const auto& konto : konta)
     {
-        suma += konto.kwota;
+        suma += konto.saldoZwrot();
     }
     return suma;
 }
@@ -107,8 +107,8 @@ void Budzet::wyswietl() const
     {
         for (const auto& konto : konta)
         {
-            std::cout << "  - " << konto.lokalizacja << ": "
-                 << std::fixed << std::setprecision(2) << konto.kwota << " PLN" << std::endl;
+            std::cout << "  - " << konto.nazwaZwrot() << ": "
+                 << std::fixed << std::setprecision(2) << konto.saldoZwrot() << " PLN" << std::endl;
         }
         std::cout << "  SUMA: " << std::fixed << std::setprecision(2) << sumaCalkowita() << " PLN" << std::endl;
     }
