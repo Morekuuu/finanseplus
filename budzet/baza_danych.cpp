@@ -27,8 +27,8 @@ void zapiszBaze(const std::list<Budzet>& lista, const std::list<std::string>& ko
 
             for (const auto& konto : budzet.konta)
             {
-                plik << konto.lokalizacja << std::endl;
-                plik << konto.kwota << std::endl;
+                plik << konto.nazwaZwrot() << std::endl;
+                plik << konto.saldoZwrot() << std::endl;
             }
         }
         plik.close();
