@@ -1,11 +1,28 @@
+/* Lista To Do
+ *
+ *  1. Blokada usuwania nazwy konta jeśli istnieje w użyciu
+ *  2. Dodanie potwierdzenia przy usuwaniu budżetu oraz konta z budżetu
+ *  4. Dodanie historii transakcji
+ *  5. GUI
+ *  6. Dodanie przesyłu środków z kaucji
+ *  7. Dodawanie spersjonalizowanych produktów inwestycyjnych
+ *  8.
+ *
+ *  Zrobione:
+ *  3. Dodanie raportu
+ *
+ */
+
+
 #include <iostream>
 #include <string>
 #include <list>
 #include <iomanip>
 #include <fstream>
+#include <windows.h>
+
 #include "budzet.h"
 #include "baza_danych.h"
-#include <windows.h>
 
 using namespace std;
 
@@ -28,7 +45,7 @@ void Budzety(std::list<Budzet>& lista)
 }
 
 //Funkcja do modyfikowania listy kont
-void modListaKont( std::list<std::string>& lista)
+void modListaKont(std::list<std::string>& lista)
 {
     int i;
     cout << "Co chcesz zrobić" << endl;
@@ -102,6 +119,38 @@ void modListaKont( std::list<std::string>& lista)
     }
 }
 
+//Sprawdza czy podana nazwa konta istnieje w liście nazw kont
+bool nazwaKontaPoprawna(std::string nazwa, const std::list<std::string>& dozwoloneNazwy)
+{
+    for (const std::string& nazwaZListy : dozwoloneNazwy)
+    {
+        if (nazwaZListy == nazwa) {return true;}
+    }
+    return false;
+}
+
+//Generuje raport kont
+void raport(std::list<Budzet>& Budzety, std::list<std::string>& Konta)
+{
+    std::cout << "\n--- RAPORT ZBIORCZY ---" << std::endl;
+    for (const std::string& szukanaNazwa : Konta)
+    {
+        double sumaDlaKategorii = 0.0;
+        for (Budzet& obecnyBudzet : Budzety)
+            {
+            for (Konto& konto : obecnyBudzet.konta)
+            {
+                if (konto.nazwaZwrot() == szukanaNazwa)
+                {
+                    sumaDlaKategorii += konto.saldoZwrot();
+                }
+            }
+        }
+        std::cout << "Konto:  " << szukanaNazwa << ": " << sumaDlaKategorii << " zl" << std::endl;
+    }
+    std::cout << "-----------------------" << std::endl;
+}
+
 int main()
 {
     SetConsoleOutputCP(CP_UTF8);
@@ -126,6 +175,7 @@ int main()
         cout << "5. Usuń środki" << endl;
         cout << "6. Usuń budżet" << endl;
         cout << "7. Zmień dostępne konta" << endl;
+        cout << "8. Raport kont" << endl;
         cout << "0. Wyjście" << endl;
         cout << "Wybierz opcje: ";
         cin >> wybor;
@@ -171,11 +221,29 @@ int main()
                 cin >> kwota;
                 cin.ignore();
 
-                cout << "Podaj miejsce przechowywania (np. PKO, Gotowka): ";
+
+                cout << "dostępne konta: ";
+                if (nazwyKont.empty()) {std::cout << "Lista kont jest pusta." << std::endl;}
+                else
+                {
+                    int idx = 1;
+                    for (const auto& nazwa : nazwyKont)
+                    {
+                        std::cout << idx << ". " << nazwa << " ";
+                        idx++;
+                    }
+                }
+                cout << "Podaj miejsce przechowywania: ";
                 string miejsce = wczytajLinie();
 
-                it->dodajKonto(kwota, miejsce);
-                cout << "Dodano srodki." << endl;
+                bool poprawnosc = nazwaKontaPoprawna(miejsce, nazwyKont);
+
+                if (poprawnosc)
+                {
+                    it->dodajKonto(kwota, miejsce);
+                    cout << "Dodano srodki." << endl;
+                }
+                else{cout << "Nieprawidłowa nazwa";}
             } else {cout << "Nieprawidlowy numer." << endl;}
             break;
         }
@@ -298,6 +366,13 @@ int main()
                 modListaKont(nazwyKont);
                 break;
             }
+
+        case 8: //Wyświetlanie raportu
+            {
+                raport(listaBudzetow, nazwyKont);
+                break;
+            }
+
         case 0:
             zapiszBaze(listaBudzetow, nazwyKont);
             cout << "Konczenie programu..." << endl;
