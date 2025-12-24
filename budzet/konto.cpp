@@ -7,12 +7,17 @@ Konto::Konto(std::string n, double s)
     saldo_ = s;
 }
 
-std::string Konto::nazwaZwrot()
+std::string Konto::nazwaZwrot() const
 {
     return nazwa_;
 }
 
-double Konto::saldoZwrot()
+void Konto::saldoZmiana(double zmiana)
+{
+    saldo_ += zmiana;
+}
+
+double Konto::saldoZwrot() const
 {
     return saldo_;
 }
