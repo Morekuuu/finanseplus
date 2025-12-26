@@ -55,11 +55,11 @@ void Budzet::zmianaŚrodków()
     }
 }
 
-void Budzet::usunKonto()
+std::string Budzet::usunKonto()
 {
     if (konta.empty()) {
         std::cout << "Lista jest pusta, nie ma czego usuwac." << std::endl;
-        return;
+        return "";
     }
 
     int a = 1;
@@ -79,8 +79,10 @@ void Budzet::usunKonto()
         konta.erase(it);
 
         std::cout << "Konto '" << lokalizacjaKasowana << "' zostalo usunietę." << std::endl;
+        return lokalizacjaKasowana;
     } else {
         std::cout << "Nieprawidlowy numer." << std::endl;
+        return "";
     }
 }
 
