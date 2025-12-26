@@ -62,9 +62,9 @@ void modListaKont(std::list<std::string>& lista)
                 cin >> nazwa;
                 lista.push_back(nazwa);
                 cout << "Konto " << nazwa << " dodane"<< endl;
+                zapisTransackji(1, nazwa, " ");
                 break;
-        }
-
+        } //Dodawanie bużetu
         case 2:
         {
                 if (lista.empty()) {std::cout << "Lista kont jest pusta." << std::endl;}
@@ -95,7 +95,7 @@ void modListaKont(std::list<std::string>& lista)
 
                 }
                 break;
-        }
+        } //Usuwanie konta z budżetu
         case 3:
         {
                 if (lista.empty()) {std::cout << "Lista kont jest pusta." << std::endl;}
@@ -190,8 +190,9 @@ int main()
             string nazwa = wczytajLinie();
             listaBudzetow.push_back(Budzet(nazwa));
             cout << "Budzet '" << nazwa << "' zostal utworzony." << endl;
+            zapisTransackji(1, nazwa, " ");
             break;
-        }
+        } //Dodanie nowego budżetu
         case 2: //dodanie konta
         {
             if (listaBudzetow.empty())
@@ -241,12 +242,13 @@ int main()
                 if (poprawnosc)
                 {
                     it->dodajKonto(kwota, miejsce);
-                    cout << "Dodano srodki." << endl;
+                    cout << "Dodano konto z środkami." << endl;
+                    zapisTransackji(1, it->nazwaBudżetu(), miejsce);
                 }
                 else{cout << "Nieprawidłowa nazwa";}
             } else {cout << "Nieprawidlowy numer." << endl;}
             break;
-        }
+        } // dodanie konta
         case 3: //wyświetl budzety
             {
                 if (listaBudzetow.empty())
@@ -260,7 +262,7 @@ int main()
                         {b.wyswietl();}
                 }
             break;
-            }
+            } // Wyświetlanie budżetów
         case 4: //zmiana środków w wybranym koncie i budżecie
             {
                 if (listaBudzetow.empty())
@@ -294,7 +296,7 @@ int main()
 
 
                 break;
-            }
+            } // zmiana środków <- nie dodane zapisu transakcji
         case 5: //usuń konto
             {
                 if (listaBudzetow.empty())
@@ -322,11 +324,15 @@ int main()
                     auto it = listaBudzetow.begin();
                     advance(it, numer - 1); // Przesuwamy iterator na wybraną pozycję
 
-                    it->usunKonto();
-                    cout << "Usunięto środki" << endl;
+                    string nazwaKonta = it->usunKonto();
+                    if (nazwaKonta != "")
+                    {
+                        cout << "Usunięto środki" << endl;
+                        zapisTransackji(4, it->nazwaBudżetu(), nazwaKonta);
+                    }
                 } else {cout << "Nieprawidlowy numer." << endl;}
                 break;
-            }
+            } // Usuwanie konta
         case 6:
             {
                 if (listaBudzetow.empty()) {
@@ -355,17 +361,18 @@ int main()
                     listaBudzetow.erase(it);
 
                     cout << "Budzet '" << Nazwakasowana << "' zostal usuniety." << endl;
+                    zapisTransackji(2, Nazwakasowana, " ");
                 } else {
                     cout << "Nieprawidlowy numer." << endl;
                 }
                 break;
-            }
+            } //Usuwanie budżetu
 
         case 7: //zmiana dostępnych kont
             {
                 modListaKont(nazwyKont);
                 break;
-            }
+            } //Modyfikacja listy nazwa konta <-nie dodałem zapisu transakcji
 
         case 8: //Wyświetlanie raportu
             {
