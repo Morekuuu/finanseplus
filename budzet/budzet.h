@@ -19,7 +19,7 @@ class Budzet
         void zmianaŚrodków();
 
         // Metoda usuwająca konto w budżecie wraz z środkami
-        void usunKonto();
+        std::string usunKonto();
 
         // Metoda obliczająca sumę w danym budżecie
         double sumaCalkowita() const;
