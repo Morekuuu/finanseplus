@@ -2,8 +2,10 @@
 #include <iostream>
 #include <fstream>
 #include <string>
+#include <ctime>
 
 const std::string NAZWA_PLIKU = "budzety.txt";
+const std::string nazwa_pliku_logs = "historia.csv";
 
 void zapiszBaze(const std::list<Budzet>& lista, const std::list<std::string>& konta)
 {
@@ -95,4 +97,93 @@ void wczytajBaze(std::list<Budzet>& lista, std::list<std::string>& konta)
     {
         std::cout << "[INFO] Brak pliku zapisu lub pierwszy start programu." << std::endl;
     }
+}
+
+void odczytTransakcji()
+{
+
+}
+
+void zapisTransackji(int zdarzenie, std::string rodzaj1, std::string rodzaj2)
+{
+    std::ofstream plik(nazwa_pliku_logs, std::ios::app);
+    std::string wiadomosc;
+
+    if (plik.is_open())
+    {
+        //Ustalanie wiadomości do zapisania
+        switch (zdarzenie)
+        {
+        //Dodanie budżetu
+        case 1:
+            {
+                wiadomosc = " Dodano nowy budżet " + rodzaj1;
+                break;
+            }
+            //usnięto budżet
+        case 2:
+            {
+                wiadomosc = " Usunięto budżet " + rodzaj1;
+                break;
+            }
+        //Dodano nowe konto
+        case 3:
+            {
+                wiadomosc = " Dodano nowe konto" + rodzaj2 + "do budżetu " + rodzaj1;
+                break;
+            }
+        //Usuwanie konta
+        case 4:
+            {
+                wiadomosc = "Usunięto konto " + rodzaj2 + " z budżetu " + rodzaj1;
+                break;
+            }
+       //dodanie nowej nazwy konta
+        case 5:
+            {
+                wiadomosc = " Dodano nową nazwę konta " + rodzaj2 + " do list kont";
+                break;
+            }
+        //usuwanie nazwy konta
+        case 6:
+            {
+                wiadomosc = " Usunięto nazwę konta " + rodzaj2 + " z list kont";
+                break;
+            }
+        //odjęcie środków z konta <- nie zrobiłem
+        case 7:
+            {
+                wiadomosc = " Odjęto środki z konta " + rodzaj2 + " z budżetu " + rodzaj1;
+                break;
+            }
+        //Dodanie środków do konta <- nie zrobiłem
+        case 8:
+            {
+                wiadomosc = " Dodanie środków do konta " + rodzaj2 + " w budżecie " + rodzaj1;
+                break;
+            }
+
+        }
+
+
+
+        //Zapis do pliku w formacie csv
+        plik << pobierzDate() << ";" << wiadomosc << ";" << rodzaj1 << ";" << rodzaj2 << "\n";
+        plik.close();
+
+    } else {
+        std::cout << "Nie znaleziona pliku historia.csv" << std::endl;
+    }
+}
+//funkcja pobieranie daty
+std::string pobierzDate()
+{
+    auto t = std::time(nullptr);
+    auto tm = *std::localtime(&t);//konwersja na czas lokalny
+
+    //formatowanie na tekst
+    std::ostringstream oss;
+    oss << std::put_time(&tm, "%Y-%m-%d");
+
+    return oss.str();
 }
