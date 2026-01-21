@@ -16,10 +16,10 @@ public:
     ~Logowanie();
 
 private slots:
-    void on_zaloguj_clicked();
-    void on_pokazHaslo_clicked();
+    void on_zaloguj_clicked();      //logowanie
+    void on_pokazHaslo_clicked();   //pokaz/ukryj haslo
 private:
-    Ui::Logowanie *ui;
+    Ui::Logowanie *ui; //wskazniki do ui
 };
 
 #endif // LOGOWANIE_H
