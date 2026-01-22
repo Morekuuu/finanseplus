@@ -3,14 +3,12 @@
 #include <list>
 #include <string>
 #include <iomanip>
-#include "struktury.h"
 
 Budzet::Budzet(std::string n)
 {
     nazwa = n;
 }
 
-// Metoda dodająca nową kwotę i miejsce do budżetu
 void Budzet::dodajKonto(double kwota, std::string lokalizacja)
 {
     konta.push_back(Konto(lokalizacja, kwota));
@@ -36,7 +34,8 @@ void Budzet::zmianaŚrodków()
 
 
 
-    if (numer > 0 && numer <= konta.size()) {
+    if (numer > 0 && numer <= konta.size())
+    {
         auto it = konta.begin();
         std::advance(it, numer - 1);
 
@@ -50,14 +49,17 @@ void Budzet::zmianaŚrodków()
         std::cout << "Do konta '" << it->nazwaZwrot() << "' zostalo "
             << ((zmiana<0) ? "odjęte: " : ("dodane: "))
             << zmiana << " PLN" << std::endl;
-    } else {
+    }
+    else
+    {
         std::cout << "Nieprawidlowy numer." << std::endl;
     }
 }
 
 std::string Budzet::usunKonto()
 {
-    if (konta.empty()) {
+    if (konta.empty())
+    {
         std::cout << "Lista jest pusta, nie ma czego usuwac." << std::endl;
         return "";
     }
@@ -72,7 +74,8 @@ std::string Budzet::usunKonto()
     std::cin >> numer;
     std::cin.ignore();
 
-    if (numer > 0 && numer <= konta.size()) {
+    if (numer > 0 && numer <= konta.size())
+    {
         auto it = konta.begin();
         std::advance(it, numer - 1);
         std::string lokalizacjaKasowana = it->nazwaZwrot();
@@ -80,7 +83,9 @@ std::string Budzet::usunKonto()
 
         std::cout << "Konto '" << lokalizacjaKasowana << "' zostalo usunietę." << std::endl;
         return lokalizacjaKasowana;
-    } else {
+    }
+    else
+    {
         std::cout << "Nieprawidlowy numer." << std::endl;
         return "";
     }
@@ -112,7 +117,7 @@ void Budzet::wyswietl() const
             std::cout << "  - " << konto.nazwaZwrot() << ": "
                  << std::fixed << std::setprecision(2) << konto.saldoZwrot() << " PLN" << std::endl;
         }
-        std::cout << "  SUMA: " << std::fixed << std::setprecision(2) << sumaCalkowita() << " PLN" << std::endl;
+        std::cout << "  Suma: " << std::fixed << std::setprecision(2) << sumaCalkowita() << " PLN" << std::endl;
     }
     std::cout << "-------------------------" << std::endl;
 }
@@ -131,4 +136,43 @@ std::string Budzet::nazwaBudżetu()const
 int Budzet::ileKont() const
 {
     return konta.size();
+}
+
+void Budzet::przeliczWszystkieKonta()
+{
+    for (auto& konto : konta)
+    {
+        //Aktualizacja o odsetki
+        WynikOdsetek wynik = konto.aktualizujStan();
+
+        if (wynik.kwota > 0) {
+            if (wynik.celTransferu.empty())
+            {
+                std::cout << "Konto oszczednosciowe" << konto.nazwaZwrot()
+                          << ": doliczono " << wynik.kwota << " PLN." << std::endl;
+            }
+            else
+            {
+                bool znalezionoCel = false;
+                for (auto& cel : konta)
+                {
+                    if (cel.nazwaZwrot() == wynik.celTransferu)
+                    {
+                        cel.saldoZmiana(wynik.kwota);
+                        znalezionoCel = true;
+                        std::cout << "obligacja " << konto.nazwaZwrot()
+                                  << " wyplacila " << wynik.kwota
+                                  << " PLN na konto " << cel.nazwaZwrot() << std::endl;
+                        break;
+                    }
+                }
+                if (!znalezionoCel)
+                {
+                    std::cout << "Obligacja zarobila, ale nie znaleziono konta docelowego: "
+                              << wynik.celTransferu << std::endl;
+                    konto.saldoZmiana(wynik.kwota);
+                }
+            }
+        }
+    }
 }
