@@ -1,4 +1,5 @@
 #include "baza_danych.h"
+#include "dlugi.h"
 #include <iostream>
 #include <fstream>
 #include <string>
@@ -14,10 +15,10 @@ void zapiszBaze(const std::list<Budzet>& lista, const std::list<std::string>& ko
         {
 
         // Zapisywanie nazw kont
-        plik << konta.size() << std::endl; // Ile jest nazw
+        plik << konta.size() << std::endl;
         for (const auto& nazwa : konta)
         {
-            plik << nazwa << std::endl;    // Sama nazwa
+            plik << nazwa << std::endl;
         }
 
         // Zapisywanie budżetów
@@ -31,6 +32,12 @@ void zapiszBaze(const std::list<Budzet>& lista, const std::list<std::string>& ko
             {
                 plik << konto.nazwaZwrot() << std::endl;
                 plik << konto.saldoZwrot() << std::endl;
+                plik << (int)konto.rodzajZwrot() << std::endl;
+                plik << konto.oprocentowanieZwrot() << std::endl;
+                plik << konto.cyklZwrot() << std::endl;
+                plik << konto.dataZwrot() << std::endl;
+                plik << konto.czasTrwaniaZwrot() << std::endl;
+                plik << konto.celZwrot() << std::endl;
             }
         }
         plik.close();
@@ -40,28 +47,26 @@ void zapiszBaze(const std::list<Budzet>& lista, const std::list<std::string>& ko
     }
 }
 
-void wczytajBaze(std::list<Budzet>& lista, std::list<std::string>& konta)
+void wczytajBaze(std::list<Budzet>& lista, std::list<std::string>& nazwyKont)
 {
     std::ifstream plik(NAZWA_PLIKU);
     if (plik.is_open())
     {
         lista.clear();
-        konta.clear();
+        nazwyKont.clear();
 
-        // Wczytanie listy nazw kont
+        // 1. Wczytanie nazw kont
         int iloscNazw = 0;
-        if (plik >> iloscNazw)
-            {
+        if (plik >> iloscNazw) {
             plik.ignore();
-
             for (int i = 0; i < iloscNazw; i++) {
                 std::string nazwa;
-                getline(plik, nazwa);
-                konta.push_back(nazwa);
+                std::getline(plik, nazwa);
+                nazwyKont.push_back(nazwa);
             }
         }
 
-        // Wczytanie listy budżetów
+        // 2. wczytywanie budżetów
         int iloscBudzetow;
         plik >> iloscBudzetow;
         plik.ignore();
@@ -69,39 +74,60 @@ void wczytajBaze(std::list<Budzet>& lista, std::list<std::string>& konta)
         for (int i = 0; i < iloscBudzetow; i++)
         {
             std::string nazwaBudzetu;
-            getline(plik, nazwaBudzetu);
+            std::getline(plik, nazwaBudzetu);
 
             Budzet nowyBudzet(nazwaBudzetu);
 
-            int iloscKont;
-            plik >> iloscKont;
+            int iloscKontWBudzecie;
+            plik >> iloscKontWBudzecie;
             plik.ignore();
 
-            for (int j = 0; j < iloscKont; j++)
+            for (int j = 0; j < iloscKontWBudzecie; j++)
             {
+                //Zmienne tymczasowe na wszystkie pola
                 std::string lokalizacja;
                 double kwota;
+                int rodzajInt;
+                double oprocentowanie;
+                double cykl;
+                long long data;
+                long long trwanie;
+                std::string cel;
 
-                getline(plik, lokalizacja);
+                //Wczytywanie pól
+                std::getline(plik, lokalizacja);
                 plik >> kwota;
-                plik.ignore(); // Ignorujemy nową linię po kwocie
+                plik >> rodzajInt;
+                plik >> oprocentowanie;
+                plik >> cykl;
+                plik >> data;
+                plik >> trwanie;
+                plik.ignore();
+                std::getline(plik, cel);
 
-                nowyBudzet.dodajKonto(kwota, lokalizacja);
+                // tworzenie obiektu Kontot
+                Konto k(lokalizacja, kwota, (Konto::rodzaj)rodzajInt, oprocentowanie, cykl, data, trwanie, cel);
+
+                //Aktualizacja odsetek
+                k.aktualizujStan();
+
+                // Dodajemy do listy w budżecie
+                nowyBudzet.konta.push_back(k);
             }
             lista.push_back(nowyBudzet);
         }
         plik.close();
-        std::cout << "[INFO] Wczytano dane z pliku (" << lista.size() << " budzetow)." << std::endl;
+        std::cout << "[INFO] Wczytano dane." << std::endl;
     }
     else
     {
-        std::cout << "[INFO] Brak pliku zapisu lub pierwszy start programu." << std::endl;
+        std::cout << "[INFO] Brak pliku lub pierwszy start." << std::endl;
     }
 }
 
 void odczytTransakcji()
 {
-
+//Ostatecznie sobie odpuszczam w tym miejscu, odczyt od razu w gui
 }
 
 void zapisTransackji(int zdarzenie, std::string rodzaj1, std::string rodzaj2)
@@ -111,7 +137,6 @@ void zapisTransackji(int zdarzenie, std::string rodzaj1, std::string rodzaj2)
 
     if (plik.is_open())
     {
-        //Ustalanie wiadomości do zapisania
         switch (zdarzenie)
         {
         //Dodanie budżetu
@@ -120,7 +145,7 @@ void zapisTransackji(int zdarzenie, std::string rodzaj1, std::string rodzaj2)
                 wiadomosc = " Dodano nowy budżet " + rodzaj1;
                 break;
             }
-            //usnięto budżet
+        //usnięto budżet
         case 2:
             {
                 wiadomosc = " Usunięto budżet " + rodzaj1;
@@ -171,7 +196,9 @@ void zapisTransackji(int zdarzenie, std::string rodzaj1, std::string rodzaj2)
         plik << pobierzDate() << ";" << wiadomosc << ";" << rodzaj1 << ";" << rodzaj2 << "\n";
         plik.close();
 
-    } else {
+    }
+    else
+    {
         std::cout << "Nie znaleziona pliku historia.csv" << std::endl;
     }
 }
@@ -186,4 +213,53 @@ std::string pobierzDate()
     oss << std::put_time(&tm, "%Y-%m-%d");
 
     return oss.str();
+}
+
+void zapiszDlugi(const std::list<Dlug>& lista)
+{
+    std::ofstream plik("dlugi.txt");
+    if (plik.is_open())
+    {
+        plik << lista.size() << std::endl;
+        for (const auto& d : lista)
+        {
+            plik << d.ktoZwrot() << std::endl;
+            plik << d.kwotaZwrot() << std::endl;
+            plik << (int)d.typZwrot() << std::endl;
+            plik << d.dataZwrot() << std::endl;
+            plik << d.opisZwrot() << std::endl;
+        }
+        plik.close();
+    }
+}
+
+void wczytajDlugi(std::list<Dlug>& lista)
+{
+    std::ifstream plik("dlugi.txt");
+    lista.clear();
+    if (plik.is_open())
+    {
+        int ilosc;
+        plik >> ilosc;
+        plik.ignore();
+
+        for (int i = 0; i < ilosc; i++)
+        {
+            std::string kto, opis, data;
+            double kwota;
+            int typInt;
+
+            std::getline(plik, kto);
+            plik >> kwota;
+            plik >> typInt;
+            plik.ignore();
+            std::getline(plik, data);
+            std::getline(plik, opis);
+
+            // Konstruktor klasy Dlug
+            lista.push_back(Dlug(kto, kwota, (Dlug::Typ)typInt, opis, data));
+        }
+        plik.close();
+        std::cout << "[INFO] Wczytano " << lista.size() << " dlugow." << std::endl;
+    }
 }
