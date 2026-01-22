@@ -1,24 +1,49 @@
 #pragma once
-#include <iostream>
 #include <string>
+#include <ctime>
+
+// Struktura pomocnicza - określa cel odsetek
+struct WynikOdsetek
+{
+    double kwota;
+    std::string celTransferu; // Jeśli puste -> dodaj do tego samego konta
+};
 
 class Konto
 {
-    public:
-        Konto(std::string n, double s);
-        enum rodzaj {basic, saving, deposit, bonds, credit}; //definiowanie typów konta
+public:
+    enum rodzaj { basic, saving, deposit, bonds, credit };
 
-        std::string nazwaZwrot() const; //metoda zwracająca nazwę
-        double saldoZwrot() const; //metoda zwracająca saldo
+    Konto(std::string n, double s, rodzaj r = basic,
+          double opr = 0.0, double cykl = 0.0,
+          long long data = 0,
+          long long czasTrwania = 0, std::string cel = "");
 
-        void saldoZmiana(double zmiana); //Metoda zmieniająca saldo
+    // Gettery
+    std::string nazwaZwrot() const;
+    double saldoZwrot() const;
+    rodzaj rodzajZwrot() const;
+    double oprocentowanieZwrot() const;
+    double cyklZwrot() const;
+    long long dataZwrot() const;
+    long long czasTrwaniaZwrot() const;
+    std::string celZwrot() const;
 
-    private:
-        std::string nazwa_; //zmienna nazwy konta
-        double saldo_; //zmienna salda konta
-        rodzaj rodzaj_; //zmienna rodzaju konta
-        double oprocentowanie_;
-        double okresCykluZmian_;
-        double okresTrwania_;
+    void saldoZmiana(double zmiana);
+    WynikOdsetek aktualizujStan();
 
+private:
+    std::string nazwa_;
+    double saldo_;
+    rodzaj rodzaj_;
+
+    //Ogólne pola oprocentowań
+    double oprocentowanie_;
+    double okresCykluZmian_;
+    long long ostatniaAktualizacja_;
+
+    //Obligacje
+    long long okresTrwania_; // Czas trwania obligacji
+    std::string celTransferu_; // miejsce wypłacania odsetek
+    long long dataRozpoczecia_; // rozpoczęcie obligacji
 };
