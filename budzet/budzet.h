@@ -6,7 +6,6 @@
 //#include "struktury.h"
 #include "konto.h"
 
-// Klasa reprezentująca jeden budżet tematyczny (np. "Wakacje")
 class Budzet
 {
     public:
@@ -32,6 +31,9 @@ class Budzet
 
         // Metoda zwracająca nazwę
         std::string nazwaBudżetu()const;
+
+        //Metoda dodająca kwoty z obligacji
+        void przeliczWszystkieKonta();
 
         // Metoda zwracająca ilosć dopisanych kont do budżetu
         int ileKont() const;
