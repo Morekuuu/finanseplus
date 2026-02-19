@@ -38,9 +38,11 @@ public:
     // Metoda zwracająca ilosć dopisanych kont do budżetu
     int ileKont() const;
 
-    std::list<Konto> konta; // Lista kont wewnątrz tego budżetu
+    
 
 private:
     std::string nazwa;
+    std::list<Konto> konta; // Lista kont wewnątrz tego budżetu
 
 };
+
